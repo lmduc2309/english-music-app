@@ -1,0 +1,33 @@
+export const colors = {
+  primary: '#6C63FF',
+  primaryLight: '#8B83FF',
+  primaryDark: '#4A42E0',
+  secondary: '#FF6584',
+  accent: '#00D4AA',
+  success: '#4CAF50',
+  warning: '#FF9800',
+  error: '#F44336',
+  background: '#0F0F23',
+  surface: '#1A1A35',
+  surfaceLight: '#252545',
+  card: '#1E1E3A',
+  text: '#FFFFFF',
+  textSecondary: '#B0B0CC',
+  textMuted: '#6B6B8D',
+  border: '#2A2A4A',
+  scorePerfect: '#FFD700',
+  scoreGreat: '#4CAF50',
+  scoreGood: '#FF9800',
+  scoreNeedsWork: '#F44336',
+  levelA1: '#4CAF50',
+  levelA2: '#8BC34A',
+  levelB1: '#FF9800',
+  levelB2: '#FF5722',
+  levelC1: '#9C27B0',
+  levelC2: '#E91E63',
+};
+
+export const levelColors: Record<string, string> = {
+  A1: colors.levelA1, A2: colors.levelA2, B1: colors.levelB1,
+  B2: colors.levelB2, C1: colors.levelC1, C2: colors.levelC2,
+};
