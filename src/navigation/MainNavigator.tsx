@@ -1,7 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Ionicons } from '@expo/vector-icons';
+import Icon from 'react-native-vector-icons/Ionicons';
 import { colors } from '../theme/colors';
 
 import HomeScreen from '../screens/main/HomeScreen';
@@ -26,20 +26,30 @@ function HomeStack() {
   );
 }
 
+const TAB_ICONS: Record<string, string> = {
+  Home: 'musical-notes',
+  Progress: 'stats-chart',
+  Leaderboard: 'trophy',
+  Profile: 'person',
+};
+
 export default function MainNavigator() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border, height: 80, paddingBottom: 16, paddingTop: 8 },
+        tabBarStyle: {
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
+          height: 80,
+          paddingBottom: 16,
+          paddingTop: 8,
+        },
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
-        tabBarIcon: ({ color, size }) => {
-          const icons: Record<string, keyof typeof Ionicons.glyphMap> = {
-            Home: 'musical-notes', Progress: 'stats-chart', Leaderboard: 'trophy', Profile: 'person',
-          };
-          return <Ionicons name={icons[route.name] || 'ellipse'} size={size} color={color} />;
-        },
+        tabBarIcon: ({ color, size }) => (
+          <Icon name={TAB_ICONS[route.name] || 'ellipse'} size={size} color={color} />
+        ),
       })}
     >
       <Tab.Screen name="Home" component={HomeStack} />

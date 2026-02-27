@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authAPI } from '../api/auth';
 
 interface User {
@@ -33,14 +33,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   error: null,
 
   loadToken: async () => {
-    const token = await SecureStore.getItemAsync('auth_token');
+    const token = await AsyncStorage.getItem('auth_token');
     if (token) {
       set({ token });
       try {
         const { data } = await authAPI.getProfile();
         set({ user: data.user });
       } catch {
-        await SecureStore.deleteItemAsync('auth_token');
+        await AsyncStorage.removeItem('auth_token');
         set({ token: null, user: null });
       }
     }
@@ -50,7 +50,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ loading: true, error: null });
     try {
       const { data } = await authAPI.login({ email, password });
-      await SecureStore.setItemAsync('auth_token', data.token);
+      await AsyncStorage.setItem('auth_token', data.token);
       set({ token: data.token, user: data.user, loading: false });
     } catch (err: any) {
       set({ loading: false, error: err.response?.data?.error || 'Login failed' });
@@ -62,7 +62,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ loading: true, error: null });
     try {
       const { data } = await authAPI.register(registerData);
-      await SecureStore.setItemAsync('auth_token', data.token);
+      await AsyncStorage.setItem('auth_token', data.token);
       set({ token: data.token, user: data.user, loading: false });
     } catch (err: any) {
       set({ loading: false, error: err.response?.data?.error || 'Registration failed' });
@@ -71,7 +71,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: async () => {
-    await SecureStore.deleteItemAsync('auth_token');
+    await AsyncStorage.removeItem('auth_token');
     set({ token: null, user: null });
   },
 
