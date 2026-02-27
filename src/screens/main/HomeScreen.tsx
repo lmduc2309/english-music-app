@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, FlatList } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
 import { useAuthStore } from '../../stores/authStore';
 import { songsAPI } from '../../api/songs';
 import { practiceAPI } from '../../api/practice';
@@ -23,7 +23,6 @@ export default function HomeScreen({ navigation }: any) {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header */}
         <View style={styles.header}>
           <View>
             <Text style={typography.bodySmall}>Welcome back,</Text>
@@ -35,7 +34,6 @@ export default function HomeScreen({ navigation }: any) {
           </View>
         </View>
 
-        {/* Daily Progress Card */}
         <View style={styles.dailyCard}>
           <Text style={[typography.h3, { marginBottom: 12 }]}>Today's Practice</Text>
           <View style={styles.statsRow}>
@@ -56,7 +54,6 @@ export default function HomeScreen({ navigation }: any) {
           </View>
         </View>
 
-        {/* Level Selector */}
         <Text style={[typography.h3, { marginTop: 24, marginBottom: 12, paddingHorizontal: 20 }]}>Choose Level</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.levelRow}>
           {levels.map(level => (
@@ -71,7 +68,6 @@ export default function HomeScreen({ navigation }: any) {
           ))}
         </ScrollView>
 
-        {/* Recommended Songs */}
         <Text style={[typography.h3, { marginTop: 24, marginBottom: 12, paddingHorizontal: 20 }]}>Recommended for You</Text>
         {featuredSongs.map((song: any) => (
           <TouchableOpacity key={song._id} style={styles.songCard} onPress={() => navigation.navigate('SongDetail', { songId: song._id })}>
@@ -87,7 +83,7 @@ export default function HomeScreen({ navigation }: any) {
                 <Text style={typography.caption}>{song.totalSentences} lines</Text>
               </View>
             </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+            <Icon name="chevron-forward" size={20} color={colors.textMuted} />
           </TouchableOpacity>
         ))}
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, TextInput } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Icon from 'react-native-vector-icons/Ionicons';
 import { songsAPI } from '../../api/songs';
 import { colors, levelColors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
@@ -31,14 +31,14 @@ export default function SongListScreen({ route, navigation }: any) {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
+          <Icon name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={typography.h2}>{level ? `Level ${level}` : 'All Songs'}</Text>
         <View style={{ width: 24 }} />
       </View>
 
       <View style={styles.searchBar}>
-        <Ionicons name="search" size={20} color={colors.textMuted} />
+        <Icon name="search" size={20} color={colors.textMuted} />
         <TextInput
           style={styles.searchInput}
           placeholder="Search songs or artists..."
@@ -68,7 +68,7 @@ export default function SongListScreen({ route, navigation }: any) {
                 <Text style={typography.caption}>⭐ {item.averageScore || '-'}</Text>
               </View>
             </View>
-            <Ionicons name="play-circle" size={32} color={colors.primary} />
+            <Icon name="play-circle" size={32} color={colors.primary} />
           </TouchableOpacity>
         )}
         ListEmptyComponent={<Text style={[typography.body, { textAlign: 'center', marginTop: 40 }]}>No songs found</Text>}

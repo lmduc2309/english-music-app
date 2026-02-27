@@ -1,7 +1,9 @@
 import axios from 'axios';
-import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api';
+// Change this to your local IP when testing on a physical device
+// e.g. 'http://192.168.1.x:3000/api'
+const API_BASE_URL = 'http://localhost:3000/api';
 
 const client = axios.create({
   baseURL: API_BASE_URL,
@@ -10,16 +12,16 @@ const client = axios.create({
 });
 
 client.interceptors.request.use(async (config) => {
-  const token = await SecureStore.getItemAsync('auth_token');
+  const token = await AsyncStorage.getItem('auth_token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
 client.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     if (error.response?.status === 401) {
-      SecureStore.deleteItemAsync('auth_token');
+      await AsyncStorage.removeItem('auth_token');
     }
     return Promise.reject(error);
   }

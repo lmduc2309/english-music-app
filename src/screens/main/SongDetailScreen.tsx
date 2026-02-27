@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Icon from 'react-native-vector-icons/Ionicons';
 import { songsAPI } from '../../api/songs';
 import { progressAPI } from '../../api/progress';
 import { colors, levelColors } from '../../theme/colors';
@@ -30,14 +30,12 @@ export default function SongDetailScreen({ route, navigation }: any) {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={24} color={colors.text} />
+            <Icon name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
         </View>
 
-        {/* Song Cover */}
         <View style={styles.coverSection}>
           <Image source={{ uri: song.thumbnailUrl }} style={styles.cover} />
           <Text style={[typography.h2, { marginTop: 16, textAlign: 'center' }]}>{song.title}</Text>
@@ -55,7 +53,6 @@ export default function SongDetailScreen({ route, navigation }: any) {
           </View>
         </View>
 
-        {/* Progress */}
         <View style={styles.progressCard}>
           <Text style={typography.h3}>Your Progress</Text>
           <View style={styles.progressBar}>
@@ -64,7 +61,6 @@ export default function SongDetailScreen({ route, navigation }: any) {
           <Text style={typography.bodySmall}>{completedCount} / {song.totalSentences} sentences completed ({progressPct}%)</Text>
         </View>
 
-        {/* Description */}
         {song.description && (
           <View style={styles.section}>
             <Text style={typography.h3}>About</Text>
@@ -72,7 +68,6 @@ export default function SongDetailScreen({ route, navigation }: any) {
           </View>
         )}
 
-        {/* Key Phrases */}
         {song.language?.keyPhrases?.length > 0 && (
           <View style={styles.section}>
             <Text style={typography.h3}>Key Phrases</Text>
@@ -88,10 +83,12 @@ export default function SongDetailScreen({ route, navigation }: any) {
         <View style={{ height: 100 }} />
       </ScrollView>
 
-      {/* Start Practice Button */}
       <View style={styles.bottomBar}>
-        <TouchableOpacity style={styles.startButton} onPress={() => navigation.navigate('Practice', { songId: song._id, songTitle: song.title })}>
-          <Ionicons name="mic" size={24} color="#FFF" />
+        <TouchableOpacity
+          style={styles.startButton}
+          onPress={() => navigation.navigate('Practice', { songId: song._id, songTitle: song.title })}
+        >
+          <Icon name="mic" size={24} color="#FFF" />
           <Text style={styles.startText}>{progress ? 'Continue Practice' : 'Start Singing'}</Text>
         </TouchableOpacity>
       </View>
