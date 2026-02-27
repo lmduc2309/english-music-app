@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Icon from 'react-native-vector-icons/Ionicons';
 import { useAuthStore } from '../../stores/authStore';
 import { colors, levelColors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
@@ -23,7 +23,6 @@ export default function ProfileScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <Text style={[typography.h2, { padding: 20, paddingBottom: 16 }]}>Profile</Text>
 
-        {/* Avatar & Name */}
         <View style={styles.avatarSection}>
           <View style={[styles.avatar, { backgroundColor: levelColors[user.currentLevel] }]}>
             <Text style={styles.avatarText}>{user.displayName.charAt(0).toUpperCase()}</Text>
@@ -35,7 +34,6 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        {/* Stats */}
         <View style={styles.statsCard}>
           <View style={styles.statRow}>
             <Text style={styles.statIcon}>⭐</Text>
@@ -62,30 +60,28 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        {/* Settings */}
         <View style={styles.settingsCard}>
           <TouchableOpacity style={styles.settingRow}>
-            <Ionicons name="notifications-outline" size={22} color={colors.textSecondary} />
+            <Icon name="notifications-outline" size={22} color={colors.textSecondary} />
             <Text style={styles.settingText}>Notifications</Text>
-            <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+            <Icon name="chevron-forward" size={18} color={colors.textMuted} />
           </TouchableOpacity>
           <View style={styles.divider} />
           <TouchableOpacity style={styles.settingRow}>
-            <Ionicons name="language-outline" size={22} color={colors.textSecondary} />
+            <Icon name="language-outline" size={22} color={colors.textSecondary} />
             <Text style={styles.settingText}>Language</Text>
-            <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+            <Icon name="chevron-forward" size={18} color={colors.textMuted} />
           </TouchableOpacity>
           <View style={styles.divider} />
           <TouchableOpacity style={styles.settingRow}>
-            <Ionicons name="help-circle-outline" size={22} color={colors.textSecondary} />
+            <Icon name="help-circle-outline" size={22} color={colors.textSecondary} />
             <Text style={styles.settingText}>Help & Support</Text>
-            <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+            <Icon name="chevron-forward" size={18} color={colors.textMuted} />
           </TouchableOpacity>
         </View>
 
-        {/* Logout */}
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={22} color={colors.error} />
+          <Icon name="log-out-outline" size={22} color={colors.error} />
           <Text style={styles.logoutText}>Log Out</Text>
         </TouchableOpacity>
 

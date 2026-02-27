@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { leaderboardAPI } from '../../api/leaderboard';
 import { colors, levelColors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
@@ -35,7 +34,6 @@ export default function LeaderboardScreen() {
     <SafeAreaView style={styles.container}>
       <Text style={[typography.h2, { padding: 20, paddingBottom: 8 }]}>Leaderboard</Text>
 
-      {/* Level Filter */}
       <View style={styles.filterRow}>
         <TouchableOpacity
           style={[styles.filterChip, !selectedLevel && styles.filterActive]}
@@ -54,7 +52,6 @@ export default function LeaderboardScreen() {
         ))}
       </View>
 
-      {/* My Rank Card */}
       {myRank && (
         <View style={styles.myRankCard}>
           <Text style={styles.myRankLabel}>Your Rank</Text>
@@ -63,7 +60,6 @@ export default function LeaderboardScreen() {
         </View>
       )}
 
-      {/* Leaderboard List */}
       <FlatList
         data={leaderboard}
         keyExtractor={(item) => item._id || item.rank?.toString()}

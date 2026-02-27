@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { progressAPI } from '../../api/progress';
 import { colors, levelColors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
@@ -22,7 +21,6 @@ export default function ProgressScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <Text style={[typography.h2, { padding: 20, paddingBottom: 8 }]}>Your Progress</Text>
 
-        {/* Level Badge */}
         <View style={styles.levelCard}>
           <View style={[styles.levelBadge, { backgroundColor: levelColors[profile.level] }]}>
             <Text style={styles.levelText}>{profile.level}</Text>
@@ -38,7 +36,6 @@ export default function ProgressScreen() {
           </View>
         </View>
 
-        {/* Stats Grid */}
         <View style={styles.statsGrid}>
           <StatBox icon="🎵" value={profile.songsCompleted} label="Songs" />
           <StatBox icon="💬" value={profile.sentencesPracticed} label="Sentences" />
@@ -46,7 +43,6 @@ export default function ProgressScreen() {
           <StatBox icon="🏆" value={profile.longestStreak} label="Best Streak" />
         </View>
 
-        {/* Weekly Summary */}
         <View style={styles.weeklyCard}>
           <Text style={[typography.h3, { marginBottom: 12 }]}>This Week</Text>
           <View style={styles.weeklyRow}>
@@ -65,7 +61,6 @@ export default function ProgressScreen() {
           </View>
         </View>
 
-        {/* Song Progress List */}
         <Text style={[typography.h3, { paddingHorizontal: 20, marginTop: 20, marginBottom: 12 }]}>Song Progress</Text>
         {songProgresses?.map((sp: any) => {
           const song = sp.songId;
