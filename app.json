@@ -1,20 +1,4 @@
 {
-  "expo": {
-    "name": "SingLearn",
-    "slug": "english-music-app",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "userInterfaceStyle": "automatic",
-    "splash": { "backgroundColor": "#6C63FF", "resizeMode": "contain" },
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.singlearn.app",
-      "infoPlist": { "NSMicrophoneUsageDescription": "We need microphone access to analyze your singing and pronunciation." }
-    },
-    "android": {
-      "adaptiveIcon": { "backgroundColor": "#6C63FF" },
-      "package": "com.singlearn.app",
-      "permissions": ["RECORD_AUDIO"]
-    }
-  }
+  "name": "EnglishMusicApp",
+  "displayName": "English Music App"
 }
