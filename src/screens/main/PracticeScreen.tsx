@@ -1,7 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Animated, ScrollView, Alert } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { Audio } from 'expo-av';
+import {
+  View, Text, StyleSheet, TouchableOpacity,
+  Animated, ScrollView, Alert, Platform,
+} from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
+import AudioRecorderPlayer from 'react-native-audio-recorder-player';
+import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import { usePracticeStore, Sentence, AttemptResult } from '../../stores/practiceStore';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
@@ -10,18 +14,24 @@ import ScoreCard from '../../components/ScoreCard';
 import WordHighlighter from '../../components/WordHighlighter';
 import WaveformAnimation from '../../components/WaveformAnimation';
 
+const audioRecorderPlayer = new AudioRecorderPlayer();
+
 export default function PracticeScreen({ route, navigation }: any) {
   const { songId, songTitle } = route.params;
   const {
     sentences, currentIndex, lastResult, loading, mode, attemptCount,
     loadSentences, submitAttempt, setMode, goToNext, resetPractice, isRecording, setRecording,
   } = usePracticeStore();
-  const [recording, setRecordingObj] = useState<Audio.Recording | null>(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     loadSentences(songId);
-    return () => { resetPractice(); };
+    return () => {
+      resetPractice();
+      // Stop recording if screen is unmounted mid-recording
+      audioRecorderPlayer.stopRecorder().catch(() => {});
+      audioRecorderPlayer.removeRecordBackListener();
+    };
   }, [songId]);
 
   useEffect(() => {
@@ -39,13 +49,27 @@ export default function PracticeScreen({ route, navigation }: any) {
 
   const currentSentence: Sentence | undefined = sentences[currentIndex];
 
+  const requestMicPermission = async (): Promise<boolean> => {
+    const permission = Platform.OS === 'ios'
+      ? PERMISSIONS.IOS.MICROPHONE
+      : PERMISSIONS.ANDROID.RECORD_AUDIO;
+
+    const status = await check(permission);
+    if (status === RESULTS.GRANTED) return true;
+
+    const result = await request(permission);
+    return result === RESULTS.GRANTED;
+  };
+
   const startRecording = async () => {
     try {
-      const perm = await Audio.requestPermissionsAsync();
-      if (!perm.granted) return Alert.alert('Permission needed', 'Microphone access is required to analyze your singing.');
-      await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
-      const { recording: rec } = await Audio.Recording.createAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
-      setRecordingObj(rec);
+      const granted = await requestMicPermission();
+      if (!granted) {
+        return Alert.alert('Permission needed', 'Microphone access is required to analyze your singing.');
+      }
+
+      await audioRecorderPlayer.startRecorder();
+      audioRecorderPlayer.addRecordBackListener(() => {});
       setRecording(true);
       setMode('sing');
     } catch (err) {
@@ -54,17 +78,16 @@ export default function PracticeScreen({ route, navigation }: any) {
   };
 
   const stopRecording = async () => {
-    if (!recording || !currentSentence) return;
+    if (!currentSentence) return;
     try {
       setRecording(false);
-      await recording.stopAndUnloadAsync();
-      const uri = recording.getURI();
-      setRecordingObj(null);
+      await audioRecorderPlayer.stopRecorder();
+      audioRecorderPlayer.removeRecordBackListener();
 
-      // In production, send audio to speech-to-text + pitch extraction service.
-      // For now, simulate with the sentence's own words (placeholder)
+      // In production, send audio URI to a speech-to-text + pitch extraction service.
+      // For now, simulate with the sentence's own data (placeholder).
       const simulatedSpokenWords = currentSentence.words.map(w => w.text);
-      const simulatedPitch = currentSentence.words.map((_, i) => 200 + Math.random() * 100);
+      const simulatedPitch = currentSentence.words.map(() => 200 + Math.random() * 100);
       const simulatedDuration = currentSentence.duration + (Math.random() - 0.5) * 2;
 
       await submitAttempt({
@@ -80,7 +103,11 @@ export default function PracticeScreen({ route, navigation }: any) {
   };
 
   if (!currentSentence && mode !== 'complete') {
-    return <View style={styles.loader}><Text style={typography.body}>Loading sentences...</Text></View>;
+    return (
+      <View style={styles.loader}>
+        <Text style={typography.body}>Loading sentences...</Text>
+      </View>
+    );
   }
 
   if (mode === 'complete') {
@@ -89,7 +116,9 @@ export default function PracticeScreen({ route, navigation }: any) {
         <View style={styles.completeContainer}>
           <Text style={styles.completeEmoji}>🎉</Text>
           <Text style={typography.h1}>Song Complete!</Text>
-          <Text style={[typography.bodySmall, { textAlign: 'center', marginTop: 12 }]}>You finished "{songTitle}". Amazing work!</Text>
+          <Text style={[typography.bodySmall, { textAlign: 'center', marginTop: 12 }]}>
+            You finished "{songTitle}". Amazing work!
+          </Text>
           <TouchableOpacity style={styles.primaryBtn} onPress={() => navigation.goBack()}>
             <Text style={styles.primaryBtnText}>Back to Songs</Text>
           </TouchableOpacity>
@@ -98,14 +127,14 @@ export default function PracticeScreen({ route, navigation }: any) {
     );
   }
 
-  const progressPct = sentences.length > 0 ? ((currentIndex) / sentences.length) * 100 : 0;
+  const progressPct = sentences.length > 0 ? (currentIndex / sentences.length) * 100 : 0;
 
   return (
     <SafeAreaView style={styles.container}>
       {/* Top Bar */}
       <View style={styles.topBar}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="close" size={28} color={colors.text} />
+          <Icon name="close" size={28} color={colors.text} />
         </TouchableOpacity>
         <View style={styles.progressBarOuter}>
           <View style={[styles.progressBarInner, { width: `${progressPct}%` }]} />
@@ -123,15 +152,14 @@ export default function PracticeScreen({ route, navigation }: any) {
           {mode === 'result' && lastResult ? (
             <WordHighlighter words={lastResult.wordScores} />
           ) : (
-            <Text style={styles.sentenceText}>{currentSentence.text}</Text>
+            <Text style={styles.sentenceText}>{currentSentence!.text}</Text>
           )}
 
-          <Text style={styles.phoneticText}>{currentSentence.phonetic}</Text>
+          <Text style={styles.phoneticText}>{currentSentence!.phonetic}</Text>
 
-          {/* Word definitions for key words */}
           {mode === 'listen' && (
             <View style={styles.keyWordsSection}>
-              {currentSentence.words.filter(w => w.isKeyWord).map((w, i) => (
+              {currentSentence!.words.filter(w => w.isKeyWord).map((w, i) => (
                 <View key={i} style={styles.keyWordItem}>
                   <Text style={styles.keyWord}>{w.text}</Text>
                   <Text style={styles.keyWordDef}>{w.definition}</Text>
@@ -141,10 +169,7 @@ export default function PracticeScreen({ route, navigation }: any) {
           )}
         </View>
 
-        {/* Recording Animation */}
         {mode === 'sing' && isRecording && <WaveformAnimation />}
-
-        {/* Score Results */}
         {mode === 'result' && lastResult && <ScoreCard result={lastResult} attemptNumber={attemptCount} />}
       </ScrollView>
 
@@ -152,7 +177,7 @@ export default function PracticeScreen({ route, navigation }: any) {
       <View style={styles.bottomActions}>
         {mode === 'listen' && (
           <TouchableOpacity style={styles.primaryBtn} onPress={startRecording}>
-            <Ionicons name="mic" size={24} color="#FFF" />
+            <Icon name="mic" size={24} color="#FFF" />
             <Text style={styles.primaryBtnText}>Start Singing</Text>
           </TouchableOpacity>
         )}
@@ -160,7 +185,7 @@ export default function PracticeScreen({ route, navigation }: any) {
         {mode === 'sing' && (
           <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
             <TouchableOpacity style={[styles.primaryBtn, styles.stopBtn]} onPress={stopRecording}>
-              <Ionicons name="stop" size={24} color="#FFF" />
+              <Icon name="stop" size={24} color="#FFF" />
               <Text style={styles.primaryBtnText}>Stop Recording</Text>
             </TouchableOpacity>
           </Animated.View>
@@ -170,14 +195,14 @@ export default function PracticeScreen({ route, navigation }: any) {
           <View style={styles.resultActions}>
             {!lastResult.canContinue && (
               <TouchableOpacity style={[styles.actionBtn, styles.retryBtn]} onPress={() => setMode('listen')}>
-                <Ionicons name="refresh" size={20} color={colors.warning} />
+                <Icon name="refresh" size={20} color={colors.warning} />
                 <Text style={[styles.actionBtnText, { color: colors.warning }]}>Try Again</Text>
               </TouchableOpacity>
             )}
             {lastResult.canContinue && (
               <TouchableOpacity style={[styles.actionBtn, styles.nextBtn]} onPress={goToNext}>
                 <Text style={[styles.actionBtnText, { color: colors.accent }]}>Next Sentence</Text>
-                <Ionicons name="arrow-forward" size={20} color={colors.accent} />
+                <Icon name="arrow-forward" size={20} color={colors.accent} />
               </TouchableOpacity>
             )}
           </View>
