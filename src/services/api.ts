@@ -1,20 +1,26 @@
 import axios, { AxiosInstance } from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
 import { User, Song, LyricLine, PracticeSession, AttemptResult, VocabularyItem, Achievement, UserStats, LeaderboardEntry, CefrLevel } from '../types';
 
-const API_BASE_URL = __DEV__ ? 'http://10.0.2.2:3000/api/v1' : 'https://api.singlish.app/api/v1';
+const API_BASE_URL = __DEV__
+  ? Platform.OS === 'android' ? 'http://10.0.2.2:3000/api/v1' : 'http://localhost:3000/api/v1'
+  : 'https://api.singlish.app/api/v1';
+
+const TOKEN_KEY = 'singlish_token';
 
 class ApiService {
   private api: AxiosInstance;
   constructor() {
     this.api = axios.create({ baseURL: API_BASE_URL, timeout: 30000, headers: { 'Content-Type': 'application/json' } });
-    this.api.interceptors.request.use(async (config) => { const token = await AsyncStorage.getItem('token'); if (token) config.headers.Authorization = `Bearer ${token}`; return config; });
-    this.api.interceptors.response.use((res) => res, async (error) => { if (error.response?.status === 401) await AsyncStorage.removeItem('token'); return Promise.reject(error); });
+    this.api.interceptors.request.use(async (config) => { const token = await SecureStore.getItemAsync(TOKEN_KEY); if (token) config.headers.Authorization = `Bearer ${token}`; return config; });
+    this.api.interceptors.response.use((res) => res, async (error) => { if (error.response?.status === 401) await SecureStore.deleteItemAsync(TOKEN_KEY); return Promise.reject(error); });
   }
-  async register(email: string, password: string, displayName: string, nativeLanguage?: string) { const res = await this.api.post('/auth/register', { email, password, displayName, nativeLanguage }); await AsyncStorage.setItem('token', res.data.accessToken); return res.data as { user: User; accessToken: string }; }
-  async login(email: string, password: string) { const res = await this.api.post('/auth/login', { email, password }); await AsyncStorage.setItem('token', res.data.accessToken); return res.data as { user: User; accessToken: string }; }
+  async register(email: string, password: string, displayName: string, nativeLanguage?: string) { const res = await this.api.post('/auth/register', { email, password, displayName, nativeLanguage }); await SecureStore.setItemAsync(TOKEN_KEY, res.data.accessToken); return res.data as { user: User; accessToken: string }; }
+  async login(email: string, password: string) { const res = await this.api.post('/auth/login', { email, password }); await SecureStore.setItemAsync(TOKEN_KEY, res.data.accessToken); return res.data as { user: User; accessToken: string }; }
   async getProfile(): Promise<User> { return (await this.api.get('/auth/profile')).data; }
-  async logout() { await AsyncStorage.removeItem('token'); }
+  async logout() { await SecureStore.deleteItemAsync(TOKEN_KEY); }
+  async hasToken(): Promise<boolean> { const t = await SecureStore.getItemAsync(TOKEN_KEY); return !!t; }
   async getSongs(params?: { level?: CefrLevel; genre?: string; search?: string; page?: number }) { return (await this.api.get('/songs', { params })).data as { songs: Song[]; total: number; page: number; totalPages: number }; }
   async getSong(id: string): Promise<Song> { return (await this.api.get(`/songs/${id}`)).data; }
   async getSongLyrics(songId: string): Promise<LyricLine[]> { return (await this.api.get(`/songs/${songId}/lyrics`)).data; }

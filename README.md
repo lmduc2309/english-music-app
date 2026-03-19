@@ -1,108 +1,97 @@
 # 🎵 SingLish — english-music-app
 
-React Native mobile app for learning English through singing with AI-powered pronunciation scoring.
+React Native (Expo) mobile app for learning English through singing with AI-powered pronunciation scoring.
 
-## Screenshots Flow
+## Tech Stack
 
-```
-Login → Home (stats, levels, songs) → Song List (by level) → Song Detail (lyrics)
-  → Practice (listen → sing → score → pass/retry) → Song Complete (stars, XP)
-  → Vocabulary (SRS review) → Leaderboard → Profile (achievements)
-```
+- **Expo SDK 55** + React Native 0.83
+- **expo-router** — File-based navigation (Stack + Bottom Tabs)
+- **expo-av** — Microphone recording for singing
+- **expo-secure-store** — Secure JWT token storage
+- **expo-haptics** — Tactile feedback on pass/fail
+- **Zustand** — Lightweight state management
+- **Axios** — API client with JWT interceptor
+- **react-native-svg** — Animated score circles
+- **Ionicons** — Tab bar icons
 
 ## Project Structure
 
 ```
-src/
-├── screens/
-│   ├── LoginScreen.tsx           # Auth (register + login)
-│   ├── HomeScreen.tsx            # Dashboard: stats, level picker, songs
-│   ├── SongListScreen.tsx        # Browse songs by CEFR level
-│   ├── SongDetailScreen.tsx      # Song info, lyrics, start practice
-│   ├── PracticeScreen.tsx        # Core game: listen → sing → score
-│   ├── SessionCompleteScreen.tsx # Celebration with stars + XP
-│   ├── VocabularyScreen.tsx      # SM-2 spaced repetition review
-│   ├── LeaderboardScreen.tsx     # Global + weekly rankings
-│   └── ProfileScreen.tsx         # Stats, achievements, settings
-├── components/
-│   ├── ScoreCircle.tsx           # Animated circular SVG score
-│   ├── LevelBadge.tsx            # CEFR level pill (A1-C2)
-│   └── SongCard.tsx              # Song list item with thumbnail
-├── services/
-│   └── api.ts                    # Axios client with JWT interceptor
-├── store/
-│   └── index.ts                  # Zustand global state
-├── navigation/
-│   └── AppNavigator.tsx          # Stack + Bottom Tab navigation
-├── types/
-│   └── index.ts                  # TypeScript interfaces
-└── utils/
-    └── theme.ts                  # Dark theme colors, fonts, spacing
+app/                          # expo-router file-based routes
+├── _layout.tsx               # Root Stack layout + auth init
+├── index.tsx                 # Auth gate → redirect to tabs or login
+├── login.tsx                 # Register / login screen
+├── (tabs)/                   # Bottom tab navigation
+│   ├── _layout.tsx           # Tab bar config (Home, Vocab, Ranks, Profile)
+│   ├── index.tsx             # Home — stats, level picker, popular songs
+│   ├── vocabulary.tsx        # SM-2 flashcard review + word list
+│   ├── leaderboard.tsx       # Global + weekly rankings
+│   └── profile.tsx           # Stats, achievements, XP level, logout
+├── song/
+│   ├── list.tsx              # Browse songs by CEFR level
+│   └── [id].tsx              # Song detail — lyrics preview + start practice
+└── practice/
+    ├── [sessionId].tsx       # Core game loop — record + score + 80% gate
+    └── complete.tsx          # Celebration screen — stars + XP
+
+src/                          # Shared logic
+├── components/               # ScoreCircle, LevelBadge, SongCard
+├── services/api.ts           # Axios client for all API endpoints
+├── store/index.ts            # Zustand global state
+├── types/index.ts            # TypeScript interfaces
+└── utils/theme.ts            # Colors, fonts, spacing constants
 ```
 
-## Core Game Loop (PracticeScreen)
+## Core Game Loop
 
 ```
-1. LISTEN   — Read the lyric sentence, tap "I'm Ready"
-2. RECORD   — Hold button and sing the sentence
-3. SCORE    — API analyzes: pitch + pronunciation + timing + words
-4. RESULT   — See 4-metric breakdown + AI coach feedback
-5. GATE     — Score >= 80%? → Next line. Below? → Retry.
-6. COMPLETE — All lines done → Stars + XP celebration
+1. LISTEN   → Read the lyric line, tap "I'm Ready"
+2. RECORD   → expo-av records your singing via microphone
+3. SCORE    → API scores: pitch + pronunciation + timing + words
+4. RESULT   → 4-metric breakdown + AI coach feedback + word chips
+5. GATE     → Score >= 80%? Next line. Below? Retry.
+6. COMPLETE → All lines done → Stars + XP celebration
 ```
 
-## Setup
+## Quick Start
 
 ```bash
-# 1. Clone and install
 git clone https://github.com/lmduc2309/english-music-app.git
 cd english-music-app
 npm install
-
-# 2. iOS (macOS only)
-cd ios && pod install && cd ..
-npx react-native run-ios
-
-# 3. Android
-npx react-native run-android
-
-# 4. Start Metro bundler (if not auto-started)
-npx react-native start
+npx expo start
 ```
+
+Scan the QR code with **Expo Go** on your phone, or press `a` for Android / `i` for iOS simulator.
+
+Make sure the backend API (`english-music-api`) is running first.
+Demo login: `demo@singlish.app` / `demo1234`
 
 ## API Connection
 
-Update the base URL in `src/services/api.ts`:
+Edit `src/services/api.ts` to match your backend:
 
 ```typescript
-// Android emulator → localhost maps to 10.0.2.2
-const API_BASE_URL = 'http://10.0.2.2:3000/api/v1';
-
+// Android emulator
+'http://10.0.2.2:3000/api/v1'
 // iOS simulator
-const API_BASE_URL = 'http://localhost:3000/api/v1';
-
-// Physical device (use your machine's LAN IP)
-const API_BASE_URL = 'http://192.168.x.x:3000/api/v1';
+'http://localhost:3000/api/v1'
+// Physical device (your LAN IP)
+'http://192.168.x.x:3000/api/v1'
 ```
 
-Make sure `english-music-api` is running first. Demo login: `demo@singlish.app` / `demo1234`
+## Key Expo Packages
 
-## Features
-
-- **Song Browser** — Filter by CEFR level (A1–C2), search by title/artist
-- **Karaoke Practice** — Sentence-by-sentence singing with recording
-- **AI Scoring** — 4 metrics: pitch, pronunciation, timing, word accuracy
-- **80% Gate** — Must pass each line before advancing
-- **AI Coach** — Natural language feedback from Qwen2.5-7B
-- **Vocabulary** — Auto-extracted words with SM-2 spaced repetition
-- **Gamification** — XP, 11 levels (Beginner Listener → Master Singer), 14 achievements, streaks
-- **Leaderboard** — Global (all-time XP) and weekly rankings
-- **Dark Theme** — Purple/teal/coral accent design system
-
-## Tech Stack
-
-React Native CLI · React Navigation (Stack + Tabs) · Zustand · Axios · react-native-svg · react-native-video · react-native-audio-recorder-player · react-native-pitch-detector · AsyncStorage
+| Package | Purpose |
+|---------|---------|
+| `expo-router` | File-based navigation |
+| `expo-av` | Audio recording (microphone) |
+| `expo-secure-store` | Encrypted JWT storage |
+| `expo-haptics` | Vibration on pass/fail |
+| `expo-status-bar` | Dark status bar |
+| `expo-linear-gradient` | UI gradients |
+| `@expo/vector-icons` | Ionicons for tabs |
 
 ## Related
 
-- Backend API: [english-music-api](https://github.com/lmduc2309/english-music-api)
+Backend API: [english-music-api](https://github.com/lmduc2309/english-music-api)
