@@ -1,0 +1,43 @@
+{
+  "name": "english-music-app",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "start": "react-native start",
+    "lint": "eslint .",
+    "test": "jest"
+  },
+  "dependencies": {
+    "react": "18.3.1",
+    "react-native": "0.76.9",
+    "@react-navigation/native": "^7.0.0",
+    "@react-navigation/native-stack": "^7.0.0",
+    "@react-navigation/bottom-tabs": "^7.0.0",
+    "react-native-screens": "^4.4.0",
+    "react-native-safe-area-context": "^5.0.0",
+    "react-native-vector-icons": "^10.2.0",
+    "react-native-video": "^6.8.0",
+    "react-native-audio-recorder-player": "^3.6.0",
+    "react-native-pitch-detector": "^1.1.0",
+    "react-native-linear-gradient": "^2.8.3",
+    "react-native-svg": "^15.9.0",
+    "@react-native-async-storage/async-storage": "^2.1.0",
+    "axios": "^1.7.0",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0",
+    "@types/react-native-vector-icons": "^6.4.0",
+    "typescript": "^5.5.0",
+    "@babel/core": "^7.25.0",
+    "@babel/preset-env": "^7.25.0",
+    "@babel/runtime": "^7.25.0",
+    "babel-jest": "^29.7.0",
+    "eslint": "^9.0.0",
+    "jest": "^29.7.0",
+    "metro-react-native-babel-preset": "^0.77.0",
+    "react-test-renderer": "18.3.1"
+  }
+}
